@@ -1,0 +1,11 @@
+id = "meson-muon"
+name = "Meson Muon"
+version = "0.1.0"
+schema_version = 1
+authors = ["Job Paardekooper <job@jpsoftware.nl>"]
+description = " Meson extension that uses the Muon LSP."
+repository = "https://github.com/jobpaardekooper/zed-meson-muon"
+
+[grammars.meson]
+repository = "https://github.com/tree-sitter-grammars/tree-sitter-meson"
+commit = "d4fa3c7260d1537ac5183740b9338373a673d5c0"
