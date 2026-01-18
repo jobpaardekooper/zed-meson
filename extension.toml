@@ -9,3 +9,7 @@ repository = "https://github.com/jobpaardekooper/zed-meson-muon"
 [grammars.meson]
 repository = "https://github.com/tree-sitter-grammars/tree-sitter-meson"
 commit = "d4fa3c7260d1537ac5183740b9338373a673d5c0"
+
+[language_servers.meson]
+name = "LanguageServer.meson"
+languages = ["Meson"]
