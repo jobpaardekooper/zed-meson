@@ -1,5 +1,10 @@
-use std::fs;
+mod settings;
 
+use crate::settings::get_settings;
+use std::{
+    fs::{self},
+    path::PathBuf,
+};
 use zed_extension_api::{
     self as zed, LanguageServerId, LanguageServerInstallationStatus as LSPStatus, Result, Worktree,
 };
@@ -10,8 +15,17 @@ struct MesonExtension {
     // ... state
 }
 
+fn file_exists(path: &PathBuf) -> bool {
+    fs::metadata(path).map_or(false, |s| s.is_file())
+}
+
 impl MesonExtension {
     fn lsp_path(&mut self, id: &LanguageServerId, tree: &Worktree) -> Result<String> {
+        // TODO: Write in readme paths for settings: https://zed.dev/docs/extensions/installing-extensions
+        let settings = get_settings()?;
+
+        println!("Current settings: {:?}", settings);
+
         // Use local muon if available
         if let Some(path) = tree.which("muon") {
             println!("Using local Muon installation at {}", path);
@@ -63,7 +77,7 @@ impl MesonExtension {
             }
         );
 
-        if !fs::metadata(&bin_path).map_or(false, |s| s.is_file()) {
+        if !file_exists(&PathBuf::from(&bin_path)) {
             zed::set_language_server_installation_status(&id, &LSPStatus::Downloading);
             let download_url = format!(
                 "https://muon.build/releases/{}/{}",
