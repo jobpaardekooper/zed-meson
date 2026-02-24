@@ -2,7 +2,7 @@
 
 ![Muon Version Badge](https://img.shields.io/badge/Muon_LSP-v0.5.0-green)
 ![MesonLSP Version Badge](https://img.shields.io/badge/MesonLSP-v4.3.7-purple)
-![license](https://img.shields.io/github/license/jobpaardekooper/zed-meson-muon)
+![license](https://img.shields.io/github/license/jobpaardekooper/zed-meson)
 ================================================================================
 
 Extension for the [Zed](https://zed.dev) code editor, adding support for the

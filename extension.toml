@@ -4,7 +4,7 @@ version = "0.5.0"
 schema_version = 1
 authors = ["Job Paardekooper <job@jpsoftware.nl>"]
 description = "Extension for the Meson build system."
-repository = "https://github.com/jobpaardekooper/zed-meson-muon"
+repository = "https://github.com/jobpaardekooper/zed-meson"
 
 [grammars.meson]
 repository = "https://github.com/tree-sitter-grammars/tree-sitter-meson"
