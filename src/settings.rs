@@ -14,9 +14,8 @@ pub enum LspVariant {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Settings {
-    lsp: LspVariant,
-    muon_path: Option<String>,
-    mesonlsp_path: Option<String>,
+    pub lsp: LspVariant,
+    pub search_in_path: bool,
 }
 
 fn write_settings_to_file<P: AsRef<Path>>(path: P, settings: &Settings) -> std::io::Result<()> {
@@ -30,8 +29,7 @@ pub fn get_settings() -> Result<Settings, String> {
     if !settings_file_path.exists() {
         let default_settings = Settings {
             lsp: LspVariant::Mesonlsp,
-            mesonlsp_path: None,
-            muon_path: None,
+            search_in_path: true,
         };
 
         write_settings_to_file(&settings_file_path, &default_settings)

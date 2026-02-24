@@ -24,12 +24,12 @@ impl MesonExtension {
         // TODO: Write in readme paths for settings: https://zed.dev/docs/extensions/installing-extensions
         let settings = get_settings()?;
 
-        println!("Current settings: {:?}", settings);
-
-        // Use local muon if available
-        if let Some(path) = tree.which("muon") {
-            println!("Using local Muon installation at {}", path);
-            return Ok(path);
+        // Use local muon if available and if the user has enabled the setting to look for it in the PATH
+        if settings.search_in_path {
+            if let Some(path) = tree.which("muon") {
+                println!("Using local Muon installation at {}", path);
+                return Ok(path);
+            }
         }
 
         println!("No local Muon installation found, downloading...");
@@ -89,6 +89,7 @@ impl MesonExtension {
             }
 
             println!("Downloading Muon from {}", download_url);
+            zed::set_language_server_installation_status(&id, &LSPStatus::Downloading);
             zed::download_file(
                 &download_url,
                 match platform {
