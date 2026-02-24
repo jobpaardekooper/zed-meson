@@ -1,14 +1,14 @@
-id = "meson-muon"
-name = "Meson Muon"
-version = "0.1.0"
+id = "meson"
+name = "Meson"
+version = "0.5.0"
 schema_version = 1
 authors = ["Job Paardekooper <job@jpsoftware.nl>"]
-description = " Meson extension that uses the Muon LSP."
+description = "Extension for the Meson build system."
 repository = "https://github.com/jobpaardekooper/zed-meson-muon"
 
 [grammars.meson]
 repository = "https://github.com/tree-sitter-grammars/tree-sitter-meson"
-commit = "d4fa3c7260d1537ac5183740b9338373a673d5c0"
+commit = "c84f3540624b81fc44067030afce2ff78d6ede05"
 
 [language_servers.meson]
 name = "LanguageServer.meson"
