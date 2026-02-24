@@ -5,7 +5,8 @@ mod utils;
 
 use crate::settings::{get_settings, LspVariant, Settings};
 use zed_extension_api::{
-    self as zed, LanguageServerId, LanguageServerInstallationStatus as LSPStatus, Result, Worktree,
+    self as zed, lsp::Completion, CodeLabel, CodeLabelSpan, LanguageServerId,
+    LanguageServerInstallationStatus as LSPStatus, Result, Worktree,
 };
 
 struct MesonExtension {
@@ -71,6 +72,32 @@ impl zed::Extension for MesonExtension {
             command: self.lsp_path(id, tree, &settings)?,
             args,
             env: Default::default(),
+        })
+    }
+
+    // Improve how autocomplete lables are displayed (improves the syntax highlighting in the labels for both mesonlsp and muon)
+    fn label_for_completion(
+        &self,
+        _language_server_id: &LanguageServerId,
+        completion: Completion,
+    ) -> Option<zed::CodeLabel> {
+        let kind = match completion.kind {
+            Some(zed::lsp::CompletionKind::Function) | Some(zed::lsp::CompletionKind::Method) => {
+                match completion.detail {
+                    Some(a) => a,
+                    _ => completion.label,
+                }
+            }
+            _ => match completion.detail {
+                Some(a) => format!("{} {}", completion.label, a),
+                _ => completion.label,
+            },
+        };
+
+        Some(CodeLabel {
+            spans: vec![CodeLabelSpan::code_range(0..kind.len())],
+            filter_range: (0..kind.len()).into(),
+            code: kind,
         })
     }
 }
