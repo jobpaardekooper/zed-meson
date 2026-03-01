@@ -12,6 +12,8 @@ static MUON_VERSION_TAG: &str = "v0.5.0";
 
 use crate::utils::file_exists;
 
+pub const LANGUAGE_SERVER_ID: &str = "muon";
+
 pub fn install_or_find_muon(id: &LanguageServerId) -> Result<String, String> {
     let (platform, arch) = zed::current_platform();
 

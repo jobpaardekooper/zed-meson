@@ -7,6 +7,8 @@ use zed_extension_api::{
 
 use crate::utils::file_exists;
 
+pub const LANGUAGE_SERVER_ID: &str = "mesonlsp";
+
 static MESONLSP_VERSION_TAG: &str = "v4.3.7";
 
 // TODO: Reuse more logic between this and the muon installer

@@ -22,34 +22,32 @@ Extension for the [Zed](https://zed.dev) code editor, adding support for the
 
 ## Language Server
 
-Both Muon's LSP mode and MesonLSP are supported by this extension. Both have support for automatic installation. The extension will first check if you have the configured language server in your `PATH` and if so, it will use that. If not, the extension will automatically download the correct version for your architecture and operating system so no extra configuration should be needed.
+Both Muon's LSP mode and MesonLSP are supported by this extension as separate language servers (`muon` and `mesonlsp`). Both support automatic installation. The extension first checks if the server binary is available in your `PATH`. If not, it downloads the matching version for your architecture and operating system.
 
 > [!NOTE]  
 > Muon has a [tracking issue regarding its LSP feature set](https://github.com/muon-build/muon/issues/159). Since MesonLSP has been archived and is no longer being developed, it is important that Muon's LSP functionality gets improved. Please contribute to Muon if you find it useful and would like a future-proof, actively developed and fully featured LSP for Meson (not just in Zed)!
 
-Currently, `mesonlsp` is used as the default language server. In the future, once Muon's LSP features are more mature, the extension might switch to using Muon as the default language server. You can already use Muon as the language server through the extension settings described below.
+You can choose which Meson language servers run through Zed's built-in language settings.
 
 ## Configuration
 
-To change the configuration of this extension:
-
-- First, make sure this extension has been installed and any `meson.build` file has been opened inside of Zed.
-- [find your installation location of Zed extensions](https://zed.dev/docs/extensions/installing-extensions#installation-location) and open that folder.
-- Inside the `extensions` folder, navigate to `work/meson`
-- Here you should find a `settings.json` file that looks as follows:
+To choose which Meson language server(s) are used, configure Zed's `languages` settings in your `settings.json`:
 
 ```json
 {
-  "lsp": "mesonlsp",
-  "search_in_path": true
+  "languages": {
+    "Meson": {
+      "language_servers": ["mesonlsp", "!muon"]
+    }
+  }
 }
 ```
 
-The `lsp` setting can be set to either `muon` or `mesonlsp` to select the language server you want to use. The `search_in_path` setting controls whether the extension should search for an already installed language server in the system path before downloading it. If `search_in_path` is set to `false`, the extension will always try to download the language server.
+In `language_servers`, use `!` to disable a server. The current recommended configuration is to use only `mesonlsp` as shown above, since Muon's LSP mode is still in early development and lacks many features. However, you can also choose to use both servers at the same time.
 
 ## Formatting with Muon
 
-Muon supports formatting code in LSP mode, but currently is is not possible to configure the format when running in LSP mode.
+Muon supports formatting code in LSP mode, but currently it is not possible to configure the format when running in LSP mode.
 
 If you want to change how code is formatted, you need to manually change the [Zed formatter settings](https://zed.dev/docs/configuring-zed#formatter) for Meson to a formatter that you prefer.
 

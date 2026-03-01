@@ -10,6 +10,10 @@ repository = "https://github.com/jobpaardekooper/zed-meson"
 repository = "https://github.com/tree-sitter-grammars/tree-sitter-meson"
 commit = "c84f3540624b81fc44067030afce2ff78d6ede05"
 
-[language_servers.meson]
-name = "LanguageServer.meson"
-languages = ["Meson"]
+[language_servers.mesonlsp]
+name = "MesonLSP"
+language = "Meson"
+
+[language_servers.muon]
+name = "Muon"
+language = "Meson"
