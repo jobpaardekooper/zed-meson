@@ -1,6 +1,6 @@
 name = "Meson"
 grammar = "meson"
-path_suffixes = ["build", "options", "meson_options.txt"]
+path_suffixes = ["meson.build", "meson.options", "meson_options.txt"]
 line_comments = ["# "]
 autoclose_before = ":.,=)}]"
 tab_size = 2
