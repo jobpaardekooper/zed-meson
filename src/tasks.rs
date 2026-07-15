@@ -11,6 +11,7 @@ const BUILD_DIR_ENV: &str = "ZED_MESON_BUILD_DIR";
 const COMMAND_ENV: &str = "ZED_MESON_COMMAND";
 const DEFINED_IN_ENV: &str = "ZED_MESON_DEFINED_IN";
 const TARGET_ENV: &str = "ZED_MESON_TARGET";
+const PREFIX_ENV: &str = "ZED_MESON_PREFIX";
 const SUFFIX_ENV: &str = "ZED_MESON_SUFFIX";
 
 pub fn create_debug_scenario(
@@ -48,6 +49,9 @@ pub fn locate_debug_target(
     let build_dir = required_env_value(&build_task, BUILD_DIR_ENV)?;
     let meson_command = required_env_value(&build_task, COMMAND_ENV)?;
     let target_name = unquote_meson_string(&required_env_value(&build_task, TARGET_ENV)?)?;
+    let target_prefix = env_value(&build_task, PREFIX_ENV)
+        .map(unquote_meson_string)
+        .transpose()?;
     let target_suffix = env_value(&build_task, SUFFIX_ENV)
         .map(unquote_meson_string)
         .transpose()?;
@@ -70,6 +74,7 @@ pub fn locate_debug_target(
     let program = executable_from_introspection(
         &output.stdout,
         &target_name,
+        target_prefix.as_deref(),
         target_suffix.as_deref(),
         &defined_in,
     )?;
@@ -158,6 +163,7 @@ fn unquote_meson_string(value: &str) -> Result<String, String> {
 fn executable_from_introspection(
     stdout: &[u8],
     target_name: &str,
+    target_prefix: Option<&str>,
     target_suffix: Option<&str>,
     defined_in: &str,
 ) -> Result<String, String> {
@@ -167,9 +173,11 @@ fn executable_from_introspection(
         .as_array()
         .ok_or_else(|| "Meson target introspection did not return an array".to_string())?;
 
-    let target_filename = target_suffix
-        .map(|suffix| format!("{target_name}.{suffix}"))
-        .unwrap_or_else(|| target_name.to_string());
+    let mut target_filename = format!("{}{target_name}", target_prefix.unwrap_or_default());
+    if let Some(suffix) = target_suffix {
+        target_filename.push('.');
+        target_filename.push_str(suffix);
+    }
     let mut matching_output = None;
     for target in targets {
         if target.get("name").and_then(|value| value.as_str()) != Some(target_name)
@@ -208,4 +216,30 @@ fn executable_from_introspection(
     matching_output.ok_or_else(|| {
         format!("Meson introspection did not report executable target {target_filename}")
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::executable_from_introspection;
+
+    #[test]
+    fn locates_executable_with_name_prefix_and_suffix() {
+        let introspection = br#"[{
+            "name": "demo",
+            "type": "executable",
+            "defined_in": "/source/meson.build",
+            "filename": ["/build/tool-demo.bin"]
+        }]"#;
+
+        let executable = executable_from_introspection(
+            introspection,
+            "demo",
+            Some("tool-"),
+            Some("bin"),
+            "/source/meson.build",
+        )
+        .unwrap();
+
+        assert_eq!(executable, "/build/tool-demo.bin");
+    }
 }
