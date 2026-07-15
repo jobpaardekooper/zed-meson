@@ -24,3 +24,13 @@ language = "Meson"
 kind = "process:exec"
 command = "meson"
 args = ["introspect", "--targets", "*"]
+
+[[capabilities]]
+kind = "process:exec"
+command = "meson"
+args = ["devenv", "-C", "*", "env"]
+
+[[capabilities]]
+kind = "process:exec"
+command = "meson"
+args = ["devenv", "-C", "*", "cmd", "/C", "set"]

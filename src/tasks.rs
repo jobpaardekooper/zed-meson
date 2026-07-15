@@ -1,7 +1,9 @@
 use zed_extension_api::{
     self as zed, BuildTaskDefinition, BuildTaskDefinitionTemplatePayload, DebugRequest,
-    DebugScenario, LaunchRequest, TaskTemplate,
+    DebugScenario, LaunchRequest, Os, TaskTemplate,
 };
+
+use std::path::Path;
 
 pub const LOCATOR_NAME: &str = "meson";
 
@@ -9,6 +11,7 @@ const BUILD_DIR_ENV: &str = "ZED_MESON_BUILD_DIR";
 const COMMAND_ENV: &str = "ZED_MESON_COMMAND";
 const DEFINED_IN_ENV: &str = "ZED_MESON_DEFINED_IN";
 const TARGET_ENV: &str = "ZED_MESON_TARGET";
+const SUFFIX_ENV: &str = "ZED_MESON_SUFFIX";
 
 pub fn create_debug_scenario(
     locator_name: &str,
@@ -45,9 +48,12 @@ pub fn locate_debug_target(
     let build_dir = required_env_value(&build_task, BUILD_DIR_ENV)?;
     let meson_command = required_env_value(&build_task, COMMAND_ENV)?;
     let target_name = unquote_meson_string(&required_env_value(&build_task, TARGET_ENV)?)?;
+    let target_suffix = env_value(&build_task, SUFFIX_ENV)
+        .map(unquote_meson_string)
+        .transpose()?;
     let defined_in = required_env_value(&build_task, DEFINED_IN_ENV)?;
 
-    let output = zed::process::Command::new(meson_command)
+    let output = zed::process::Command::new(meson_command.as_str())
         .args(["introspect", "--targets", build_dir.as_str()])
         .envs(build_task.env.clone())
         .output()
@@ -61,13 +67,61 @@ pub fn locate_debug_target(
         ));
     }
 
-    let program = executable_from_introspection(&output.stdout, &target_name, &defined_in)?;
+    let program = executable_from_introspection(
+        &output.stdout,
+        &target_name,
+        target_suffix.as_deref(),
+        &defined_in,
+    )?;
+    let envs = meson_devenv(&meson_command, &build_dir, &build_task)?;
     Ok(DebugRequest::Launch(LaunchRequest {
         program,
-        cwd: build_task.cwd,
+        cwd: Some(build_dir),
         args: Vec::new(),
-        envs: Vec::new(),
+        envs,
     }))
+}
+
+fn meson_devenv(
+    meson_command: &str,
+    build_dir: &str,
+    build_task: &TaskTemplate,
+) -> Result<Vec<(String, String)>, String> {
+    let (os, _) = zed::current_platform();
+    let mut args = vec!["devenv", "-C", build_dir];
+    match os {
+        Os::Windows => args.extend(["cmd", "/C", "set"]),
+        Os::Mac | Os::Linux => args.push("env"),
+    }
+
+    let output = zed::process::Command::new(meson_command)
+        .args(args)
+        .envs(build_task.env.clone())
+        .output()
+        .map_err(|error| format!("failed to get Meson developer environment: {error}"))?;
+
+    if output.status != Some(0) {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(format!(
+            "Meson could not create the developer environment for {build_dir}: {}",
+            stderr.trim()
+        ));
+    }
+
+    parse_environment(&output.stdout)
+}
+
+fn parse_environment(stdout: &[u8]) -> Result<Vec<(String, String)>, String> {
+    let stdout = std::str::from_utf8(stdout)
+        .map_err(|error| format!("Meson developer environment is not UTF-8: {error}"))?;
+
+    Ok(stdout
+        .lines()
+        .filter_map(|line| {
+            let (name, value) = line.split_once('=')?;
+            (!name.is_empty()).then(|| (name.to_string(), value.to_string()))
+        })
+        .collect())
 }
 
 fn env_value<'a>(task: &'a TaskTemplate, name: &str) -> Option<&'a str> {
@@ -104,6 +158,7 @@ fn unquote_meson_string(value: &str) -> Result<String, String> {
 fn executable_from_introspection(
     stdout: &[u8],
     target_name: &str,
+    target_suffix: Option<&str>,
     defined_in: &str,
 ) -> Result<String, String> {
     let targets: zed::serde_json::Value = zed::serde_json::from_slice(stdout)
@@ -112,7 +167,10 @@ fn executable_from_introspection(
         .as_array()
         .ok_or_else(|| "Meson target introspection did not return an array".to_string())?;
 
-    let mut matching_name = None;
+    let target_filename = target_suffix
+        .map(|suffix| format!("{target_name}.{suffix}"))
+        .unwrap_or_else(|| target_name.to_string());
+    let mut matching_output = None;
     for target in targets {
         if target.get("name").and_then(|value| value.as_str()) != Some(target_name)
             || target.get("type").and_then(|value| value.as_str()) != Some("executable")
@@ -129,13 +187,25 @@ fn executable_from_introspection(
             continue;
         };
 
+        let Some(filename_basename) = Path::new(filename)
+            .file_name()
+            .and_then(|filename| filename.to_str())
+        else {
+            continue;
+        };
+        let matches_output = filename_basename == target_filename
+            || (target_suffix.is_none() && filename_basename == format!("{target_filename}.exe"));
+        if !matches_output {
+            continue;
+        }
+
         if target.get("defined_in").and_then(|value| value.as_str()) == Some(defined_in) {
             return Ok(filename.to_string());
         }
-        matching_name = Some(filename.to_string());
+        matching_output = Some(filename.to_string());
     }
 
-    matching_name.ok_or_else(|| {
-        format!("Meson introspection did not report executable target {target_name}")
+    matching_output.ok_or_else(|| {
+        format!("Meson introspection did not report executable target {target_filename}")
     })
 }
