@@ -4,6 +4,7 @@ path_suffixes = ["meson.build", "meson.options", "meson_options.txt"]
 line_comments = ["# "]
 autoclose_before = ":.,=)}]"
 tab_size = 2
+debuggers = ["CodeLLDB", "GDB"]
 brackets = [
     { start = "{", end = "}", close = true, newline = true },
     { start = "[", end = "]", close = true, newline = true },

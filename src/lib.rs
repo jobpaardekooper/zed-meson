@@ -1,5 +1,6 @@
 mod mesonlsp;
 mod muon;
+mod tasks;
 mod utils;
 
 use zed_extension_api::{
@@ -88,6 +89,29 @@ impl zed::Extension for MesonExtension {
             filter_range: (0..kind.len()).into(),
             code: kind,
         })
+    }
+
+    fn dap_locator_create_scenario(
+        &mut self,
+        locator_name: String,
+        build_task: zed::TaskTemplate,
+        resolved_label: String,
+        debug_adapter_name: String,
+    ) -> Option<zed::DebugScenario> {
+        tasks::create_debug_scenario(
+            &locator_name,
+            build_task,
+            resolved_label,
+            debug_adapter_name,
+        )
+    }
+
+    fn run_dap_locator(
+        &mut self,
+        locator_name: String,
+        build_task: zed::TaskTemplate,
+    ) -> Result<zed::DebugRequest> {
+        tasks::locate_debug_target(&locator_name, build_task)
     }
 }
 
