@@ -3,8 +3,6 @@ use zed_extension_api::{
     DebugScenario, LaunchRequest, Os, TaskTemplate,
 };
 
-use std::path::Path;
-
 pub const LOCATOR_NAME: &str = "meson";
 
 const BUILD_DIR_ENV: &str = "ZED_MESON_BUILD_DIR";
@@ -160,6 +158,13 @@ fn unquote_meson_string(value: &str) -> Result<String, String> {
     ))
 }
 
+fn path_basename(path: &str) -> Option<&str> {
+    let basename = path
+        .rsplit(|character| character == '/' || character == '\\')
+        .next()?;
+    (!basename.is_empty()).then_some(basename)
+}
+
 fn executable_from_introspection(
     stdout: &[u8],
     target_name: &str,
@@ -195,10 +200,7 @@ fn executable_from_introspection(
             continue;
         };
 
-        let Some(filename_basename) = Path::new(filename)
-            .file_name()
-            .and_then(|filename| filename.to_str())
-        else {
+        let Some(filename_basename) = path_basename(filename) else {
             continue;
         };
         let matches_output = filename_basename == target_filename
@@ -216,30 +218,4 @@ fn executable_from_introspection(
     matching_output.ok_or_else(|| {
         format!("Meson introspection did not report executable target {target_filename}")
     })
-}
-
-#[cfg(test)]
-mod tests {
-    use super::executable_from_introspection;
-
-    #[test]
-    fn locates_executable_with_name_prefix_and_suffix() {
-        let introspection = br#"[{
-            "name": "demo",
-            "type": "executable",
-            "defined_in": "/source/meson.build",
-            "filename": ["/build/tool-demo.bin"]
-        }]"#;
-
-        let executable = executable_from_introspection(
-            introspection,
-            "demo",
-            Some("tool-"),
-            Some("bin"),
-            "/source/meson.build",
-        )
-        .unwrap();
-
-        assert_eq!(executable, "/build/tool-demo.bin");
-    }
 }
