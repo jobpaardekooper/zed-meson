@@ -8,7 +8,7 @@ use zed_extension_api::{
     self as zed, LanguageServerId, LanguageServerInstallationStatus as LSPStatus, Result,
 };
 
-static MUON_VERSION_TAG: &str = "v0.5.0";
+static MUON_VERSION_TAG: &str = "v0.6.0";
 
 use crate::utils::file_exists;
 
