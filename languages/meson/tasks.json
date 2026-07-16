@@ -1,0 +1,126 @@
+[
+  {
+    "label": "Meson: setup build directory",
+    "command": "meson",
+    "args": ["setup", "build", "$ZED_WORKTREE_ROOT"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all"
+  },
+  {
+    "label": "Meson: reconfigure",
+    "command": "meson",
+    "args": ["setup", "--reconfigure", "build", "$ZED_WORKTREE_ROOT"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all"
+  },
+  {
+    "label": "Meson: build all targets",
+    "command": "meson",
+    "args": ["compile", "-C", "build"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all"
+  },
+  {
+    "label": "Meson: test",
+    "command": "meson",
+    "args": ["test", "-C", "build"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all"
+  },
+  {
+    "label": "Meson: clean",
+    "command": "meson",
+    "args": ["compile", "--clean", "-C", "build"],
+    "cwd": "$ZED_WORKTREE_ROOT"
+  },
+  {
+    "label": "Meson: install",
+    "command": "meson",
+    "args": ["install", "-C", "build"],
+    "cwd": "$ZED_WORKTREE_ROOT"
+  },
+  {
+    "label": "Meson: build $ZED_CUSTOM_meson_target",
+    "command": "meson compile -C build \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_target:executable",
+    "env": {
+      "ZED_MESON_BUILD_DIR": "$ZED_WORKTREE_ROOT/build",
+      "ZED_MESON_COMMAND": "meson",
+      "ZED_MESON_DEFINED_IN": "$ZED_FILE",
+      "ZED_MESON_TARGET": "$ZED_CUSTOM_meson_target"
+    },
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all",
+    "tags": ["meson-executable"]
+  },
+  {
+    "label": "Meson: build and run $ZED_CUSTOM_meson_target",
+    "command": "meson compile -C build \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_target:executable && meson devenv -C build \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_target",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all",
+    "tags": ["meson-executable"]
+  },
+  {
+    "label": "Meson: build $ZED_CUSTOM_meson_prefix$ZED_CUSTOM_meson_target",
+    "command": "meson compile -C build \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_target:executable",
+    "env": {
+      "ZED_MESON_BUILD_DIR": "$ZED_WORKTREE_ROOT/build",
+      "ZED_MESON_COMMAND": "meson",
+      "ZED_MESON_DEFINED_IN": "$ZED_FILE",
+      "ZED_MESON_TARGET": "$ZED_CUSTOM_meson_target",
+      "ZED_MESON_PREFIX": "$ZED_CUSTOM_meson_prefix"
+    },
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all",
+    "tags": ["meson-executable-prefixed"]
+  },
+  {
+    "label": "Meson: build and run $ZED_CUSTOM_meson_prefix$ZED_CUSTOM_meson_target",
+    "command": "meson compile -C build \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_target:executable && meson devenv -C build \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_prefix$ZED_CUSTOM_meson_target",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all",
+    "tags": ["meson-executable-prefixed"]
+  },
+  {
+    "label": "Meson: build $ZED_CUSTOM_meson_target.$ZED_CUSTOM_meson_suffix",
+    "command": "meson compile -C build \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_target.$ZED_CUSTOM_meson_suffix:executable",
+    "env": {
+      "ZED_MESON_BUILD_DIR": "$ZED_WORKTREE_ROOT/build",
+      "ZED_MESON_COMMAND": "meson",
+      "ZED_MESON_DEFINED_IN": "$ZED_FILE",
+      "ZED_MESON_TARGET": "$ZED_CUSTOM_meson_target",
+      "ZED_MESON_SUFFIX": "$ZED_CUSTOM_meson_suffix"
+    },
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all",
+    "tags": ["meson-executable-suffixed"]
+  },
+  {
+    "label": "Meson: build and run $ZED_CUSTOM_meson_target.$ZED_CUSTOM_meson_suffix",
+    "command": "meson compile -C build \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_target.$ZED_CUSTOM_meson_suffix:executable && meson devenv -C build \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_target.$ZED_CUSTOM_meson_suffix",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all",
+    "tags": ["meson-executable-suffixed"]
+  },
+  {
+    "label": "Meson: build $ZED_CUSTOM_meson_prefix$ZED_CUSTOM_meson_target.$ZED_CUSTOM_meson_suffix",
+    "command": "meson compile -C build \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_target.$ZED_CUSTOM_meson_suffix:executable",
+    "env": {
+      "ZED_MESON_BUILD_DIR": "$ZED_WORKTREE_ROOT/build",
+      "ZED_MESON_COMMAND": "meson",
+      "ZED_MESON_DEFINED_IN": "$ZED_FILE",
+      "ZED_MESON_TARGET": "$ZED_CUSTOM_meson_target",
+      "ZED_MESON_PREFIX": "$ZED_CUSTOM_meson_prefix",
+      "ZED_MESON_SUFFIX": "$ZED_CUSTOM_meson_suffix"
+    },
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all",
+    "tags": ["meson-executable-prefixed-suffixed"]
+  },
+  {
+    "label": "Meson: build and run $ZED_CUSTOM_meson_prefix$ZED_CUSTOM_meson_target.$ZED_CUSTOM_meson_suffix",
+    "command": "meson compile -C build \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_target.$ZED_CUSTOM_meson_suffix:executable && meson devenv -C build \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_prefix$ZED_CUSTOM_meson_target.$ZED_CUSTOM_meson_suffix",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all",
+    "tags": ["meson-executable-prefixed-suffixed"]
+  }
+]

@@ -19,6 +19,165 @@ Extension for the [Zed](https://zed.dev) code editor, adding support for the
 - Configurable language server with support for both Muon and MesonLSP
   - `muon` as the language server ([features](https://docs.muon.build/features.html#muon-analyze))
   - `mesonlsp` as the language server ([features](https://github.com/JCWasmx86/mesonlsp?tab=readme-ov-file#current-feature-set))
+- Meson tasks for setup, reconfigure, build, test, clean, and install
+- Build and debug actions for literal `executable()` targets
+
+## Tasks and Debugging
+
+> [!NOTE]  
+> For the Meson tasks to show up in Zed's task picker, you need to have a `meson.build` file open in the focused editor tab.
+
+Open a `meson.build` file and use Zed's task picker to run the Meson tasks. The extension uses `build/` as the build directory. Run **Meson: setup build directory** once for a new checkout, then use **Meson: build all targets** (or one of the other provided tasks).
+
+Literal executable declarations such as `executable('demo', sources)` also get inline build, build-and-run, and debug actions.
+
+### Limitations
+
+#### Build Directory Selection
+
+Zed does not currently expose any way to get extra input from the user when running a task. This means that the Meson extension cannot provide a build directory picker to language extensions.
+
+If you need to use a directory other than `build/`, you can override the automatically provided tasks by creating your own `.zed/tasks.json`. For example, the following configuration uses `out/`:
+
+<details>
+<summary><strong>Example <code>.zed/tasks.json</code></strong></summary>
+
+```json
+[
+  {
+    "label": "Meson: setup build directory",
+    "command": "meson",
+    "args": ["setup", "out", "$ZED_WORKTREE_ROOT"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all"
+  },
+  {
+    "label": "Meson: reconfigure",
+    "command": "meson",
+    "args": ["setup", "--reconfigure", "out", "$ZED_WORKTREE_ROOT"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all"
+  },
+  {
+    "label": "Meson: build all targets",
+    "command": "meson",
+    "args": ["compile", "-C", "out"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all"
+  },
+  {
+    "label": "Meson: test",
+    "command": "meson",
+    "args": ["test", "-C", "out"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all"
+  },
+  {
+    "label": "Meson: clean",
+    "command": "meson",
+    "args": ["compile", "--clean", "-C", "out"],
+    "cwd": "$ZED_WORKTREE_ROOT"
+  },
+  {
+    "label": "Meson: install",
+    "command": "meson",
+    "args": ["install", "-C", "out"],
+    "cwd": "$ZED_WORKTREE_ROOT"
+  },
+  {
+    "label": "Meson: build $ZED_CUSTOM_meson_target",
+    "command": "meson compile -C out \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_target:executable",
+    "env": {
+      "ZED_MESON_BUILD_DIR": "$ZED_WORKTREE_ROOT/out",
+      "ZED_MESON_COMMAND": "meson",
+      "ZED_MESON_DEFINED_IN": "$ZED_FILE",
+      "ZED_MESON_TARGET": "$ZED_CUSTOM_meson_target"
+    },
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all",
+    "tags": ["meson-executable"]
+  },
+  {
+    "label": "Meson: build and run $ZED_CUSTOM_meson_target",
+    "command": "meson compile -C out \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_target:executable && meson devenv -C out \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_target",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all",
+    "tags": ["meson-executable"]
+  },
+  {
+    "label": "Meson: build $ZED_CUSTOM_meson_prefix$ZED_CUSTOM_meson_target",
+    "command": "meson compile -C out \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_target:executable",
+    "env": {
+      "ZED_MESON_BUILD_DIR": "$ZED_WORKTREE_ROOT/out",
+      "ZED_MESON_COMMAND": "meson",
+      "ZED_MESON_DEFINED_IN": "$ZED_FILE",
+      "ZED_MESON_TARGET": "$ZED_CUSTOM_meson_target",
+      "ZED_MESON_PREFIX": "$ZED_CUSTOM_meson_prefix"
+    },
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all",
+    "tags": ["meson-executable-prefixed"]
+  },
+  {
+    "label": "Meson: build and run $ZED_CUSTOM_meson_prefix$ZED_CUSTOM_meson_target",
+    "command": "meson compile -C out \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_target:executable && meson devenv -C out \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_prefix$ZED_CUSTOM_meson_target",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all",
+    "tags": ["meson-executable-prefixed"]
+  },
+  {
+    "label": "Meson: build $ZED_CUSTOM_meson_target.$ZED_CUSTOM_meson_suffix",
+    "command": "meson compile -C out \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_target.$ZED_CUSTOM_meson_suffix:executable",
+    "env": {
+      "ZED_MESON_BUILD_DIR": "$ZED_WORKTREE_ROOT/out",
+      "ZED_MESON_COMMAND": "meson",
+      "ZED_MESON_DEFINED_IN": "$ZED_FILE",
+      "ZED_MESON_TARGET": "$ZED_CUSTOM_meson_target",
+      "ZED_MESON_SUFFIX": "$ZED_CUSTOM_meson_suffix"
+    },
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all",
+    "tags": ["meson-executable-suffixed"]
+  },
+  {
+    "label": "Meson: build and run $ZED_CUSTOM_meson_target.$ZED_CUSTOM_meson_suffix",
+    "command": "meson compile -C out \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_target.$ZED_CUSTOM_meson_suffix:executable && meson devenv -C out \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_target.$ZED_CUSTOM_meson_suffix",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all",
+    "tags": ["meson-executable-suffixed"]
+  },
+  {
+    "label": "Meson: build $ZED_CUSTOM_meson_prefix$ZED_CUSTOM_meson_target.$ZED_CUSTOM_meson_suffix",
+    "command": "meson compile -C out \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_target.$ZED_CUSTOM_meson_suffix:executable",
+    "env": {
+      "ZED_MESON_BUILD_DIR": "$ZED_WORKTREE_ROOT/out",
+      "ZED_MESON_COMMAND": "meson",
+      "ZED_MESON_DEFINED_IN": "$ZED_FILE",
+      "ZED_MESON_TARGET": "$ZED_CUSTOM_meson_target",
+      "ZED_MESON_PREFIX": "$ZED_CUSTOM_meson_prefix",
+      "ZED_MESON_SUFFIX": "$ZED_CUSTOM_meson_suffix"
+    },
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all",
+    "tags": ["meson-executable-prefixed-suffixed"]
+  },
+  {
+    "label": "Meson: build and run $ZED_CUSTOM_meson_prefix$ZED_CUSTOM_meson_target.$ZED_CUSTOM_meson_suffix",
+    "command": "meson compile -C out \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_target.$ZED_CUSTOM_meson_suffix:executable && meson devenv -C out \"./$ZED_RELATIVE_DIR/\"$ZED_CUSTOM_meson_prefix$ZED_CUSTOM_meson_target.$ZED_CUSTOM_meson_suffix",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "save": "all",
+    "tags": ["meson-executable-prefixed-suffixed"]
+  }
+]
+```
+
+</details>
+
+#### Automatic Executable Discovery
+
+To get a specific executable to show up in the task picker, first run its build/run/debug action from the inline runnable indicator. Zed then keeps the resolved target task in its recent-task history, making it available in the task picker for the rest of the current project session.
+
+You need to do this each time after reopening the project.
 
 ## Language Server
 

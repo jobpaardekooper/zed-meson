@@ -17,3 +17,20 @@ language = "Meson"
 [language_servers.muon]
 name = "Muon"
 language = "Meson"
+
+[debug_locators.meson]
+
+[[capabilities]]
+kind = "process:exec"
+command = "meson"
+args = ["introspect", "--targets", "*"]
+
+[[capabilities]]
+kind = "process:exec"
+command = "meson"
+args = ["devenv", "-C", "*", "env"]
+
+[[capabilities]]
+kind = "process:exec"
+command = "meson"
+args = ["devenv", "-C", "*", "cmd", "/C", "set"]
