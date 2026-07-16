@@ -26,17 +26,17 @@ impl MesonExtension {
         // file that will trigger the language server to start, you might later fail to
         // download the latest version of the LSP and we will not try to use the older version
         // even if you did have it installed before
-        zed::set_language_server_installation_status(&id, &LSPStatus::CheckingForUpdate);
+        zed::set_language_server_installation_status(id, &LSPStatus::CheckingForUpdate);
 
         let bin_path = match id.as_ref() {
-            mesonlsp::LANGUAGE_SERVER_ID => mesonlsp::install_or_find_mesonlsp(&id)?,
-            muon::LANGUAGE_SERVER_ID => muon::install_or_find_muon(&id)?,
+            mesonlsp::LANGUAGE_SERVER_ID => mesonlsp::install_or_find_mesonlsp(id)?,
+            muon::LANGUAGE_SERVER_ID => muon::install_or_find_muon(id)?,
             _ => return Err(format!("Unsupported language server: {}", id.as_ref())),
         };
 
         zed::make_file_executable(&bin_path)?;
-        zed::set_language_server_installation_status(&id, &LSPStatus::None);
-        return Ok(bin_path);
+        zed::set_language_server_installation_status(id, &LSPStatus::None);
+        Ok(bin_path)
     }
 }
 
@@ -65,7 +65,7 @@ impl zed::Extension for MesonExtension {
         })
     }
 
-    // Improve how autocomplete lables are displayed (improves the syntax highlighting in the labels for both mesonlsp and muon)
+    // Improve how autocomplete labels are displayed (improves the syntax highlighting in the labels for both mesonlsp and muon)
     fn label_for_completion(
         &self,
         _language_server_id: &LanguageServerId,

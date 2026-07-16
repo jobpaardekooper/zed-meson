@@ -42,14 +42,14 @@ pub fn install_or_find_mesonlsp(id: &LanguageServerId) -> Result<String, String>
     let download_file_name = format!("mesonlsp-{}-{}.zip", arch_tag, platform_tag);
 
     if !file_exists(&PathBuf::from(&bin_path)) {
-        zed::set_language_server_installation_status(&id, &LSPStatus::Downloading);
+        zed::set_language_server_installation_status(id, &LSPStatus::Downloading);
         let download_url = format!(
             "https://github.com/JCWasmx86/mesonlsp/releases/download/{}/{}",
             MESONLSP_VERSION_TAG, download_file_name
         );
 
         println!("Downloading mesonlsp from {}", download_url);
-        zed::set_language_server_installation_status(&id, &LSPStatus::Downloading);
+        zed::set_language_server_installation_status(id, &LSPStatus::Downloading);
         zed::download_file(
             &download_url,
             &download_dir_name,
@@ -57,5 +57,5 @@ pub fn install_or_find_mesonlsp(id: &LanguageServerId) -> Result<String, String>
         )?;
     }
 
-    return Ok(bin_path);
+    Ok(bin_path)
 }
