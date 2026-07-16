@@ -159,9 +159,7 @@ fn unquote_meson_string(value: &str) -> Result<String, String> {
 }
 
 fn path_basename(path: &str) -> Option<&str> {
-    let basename = path
-        .rsplit(|character| character == '/' || character == '\\')
-        .next()?;
+    let basename = path.rsplit(['/', '\\']).next()?;
     (!basename.is_empty()).then_some(basename)
 }
 

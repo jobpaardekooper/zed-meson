@@ -53,7 +53,7 @@ pub fn install_or_find_muon(id: &LanguageServerId) -> Result<String, String> {
     );
 
     if !file_exists(&PathBuf::from(&bin_path)) {
-        zed::set_language_server_installation_status(&id, &LSPStatus::Downloading);
+        zed::set_language_server_installation_status(id, &LSPStatus::Downloading);
         let download_url = format!(
             "https://muon.build/releases/{}/{}",
             MUON_VERSION_TAG, download_file_name
@@ -64,7 +64,7 @@ pub fn install_or_find_muon(id: &LanguageServerId) -> Result<String, String> {
         }
 
         println!("Downloading Muon from {}", download_url);
-        zed::set_language_server_installation_status(&id, &LSPStatus::Downloading);
+        zed::set_language_server_installation_status(id, &LSPStatus::Downloading);
         zed::download_file(
             &download_url,
             match platform {
@@ -78,5 +78,5 @@ pub fn install_or_find_muon(id: &LanguageServerId) -> Result<String, String> {
         )?;
     }
 
-    return Ok(bin_path);
+    Ok(bin_path)
 }
