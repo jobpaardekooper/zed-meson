@@ -9,7 +9,7 @@ use crate::utils::file_exists;
 
 pub const LANGUAGE_SERVER_ID: &str = "mesonlsp";
 
-static MESONLSP_VERSION_TAG: &str = "v4.3.7";
+static MESONLSP_VERSION_TAG: &str = "v5.0.4";
 
 // TODO: Reuse more logic between this and the muon installer
 pub fn install_or_find_mesonlsp(id: &LanguageServerId) -> Result<String, String> {
