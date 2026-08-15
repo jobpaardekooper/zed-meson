@@ -1,7 +1,7 @@
 # Zed Meson Extension
 
-![Muon Version Badge](https://img.shields.io/badge/Muon_LSP-v0.6.0-green)
-![MesonLSP Version Badge](https://img.shields.io/badge/MesonLSP-latest-purple)
+[![Muon Version Badge](https://img.shields.io/badge/Muon_LSP-v0.6.0-green)](https://muon.build/)
+[![MesonLSP Version Badge](https://img.shields.io/badge/MesonLSP-latest-purple)](https://github.com/JCWasmx86/mesonlsp)
 ![license](https://img.shields.io/github/license/jobpaardekooper/zed-meson)
 ================================================================================
 
