@@ -9,7 +9,7 @@ use crate::utils::file_exists;
 
 pub const LANGUAGE_SERVER_ID: &str = "mesonlsp";
 
-static MESONLSP_VERSION_TAG: &str = "v4.3.7";
+const MESONLSP_REPOSITORY: &str = "JCWasmx86/mesonlsp";
 
 // TODO: Reuse more logic between this and the muon installer
 pub fn install_or_find_mesonlsp(id: &LanguageServerId) -> Result<String, String> {
@@ -34,24 +34,35 @@ pub fn install_or_find_mesonlsp(id: &LanguageServerId) -> Result<String, String>
         zed::Os::Mac => "apple-darwin",
     };
 
-    let download_dir_name = format!(
-        "mesonlsp-{}-{}-{}",
-        MESONLSP_VERSION_TAG, arch_tag, platform_tag,
-    );
-    let bin_path = format!("{}/mesonlsp", download_dir_name);
+    let release = zed::latest_github_release(
+        MESONLSP_REPOSITORY,
+        zed::GithubReleaseOptions {
+            require_assets: true,
+            pre_release: false,
+        },
+    )?;
+
     let download_file_name = format!("mesonlsp-{}-{}.zip", arch_tag, platform_tag);
+    let asset = release
+        .assets
+        .iter()
+        .find(|asset| asset.name == download_file_name)
+        .ok_or_else(|| {
+            format!(
+                "MesonLSP release {} has no asset named {}",
+                release.version, download_file_name
+            )
+        })?;
+
+    let download_dir_name = format!("mesonlsp-{}-{}-{}", release.version, arch_tag, platform_tag);
+    let bin_path = format!("{}/mesonlsp", download_dir_name);
 
     if !file_exists(&PathBuf::from(&bin_path)) {
         zed::set_language_server_installation_status(id, &LSPStatus::Downloading);
-        let download_url = format!(
-            "https://github.com/JCWasmx86/mesonlsp/releases/download/{}/{}",
-            MESONLSP_VERSION_TAG, download_file_name
-        );
 
-        println!("Downloading mesonlsp from {}", download_url);
-        zed::set_language_server_installation_status(id, &LSPStatus::Downloading);
+        println!("Downloading MesonLSP from {}", asset.download_url);
         zed::download_file(
-            &download_url,
+            &asset.download_url,
             &download_dir_name,
             zed::DownloadedFileType::Zip,
         )?;

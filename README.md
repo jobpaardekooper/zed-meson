@@ -1,7 +1,7 @@
 # Zed Meson Extension
 
-![Muon Version Badge](https://img.shields.io/badge/Muon_LSP-v0.6.0-green)
-![MesonLSP Version Badge](https://img.shields.io/badge/MesonLSP-v4.3.7-purple)
+[![Muon Version Badge](https://img.shields.io/badge/Muon_LSP-v0.6.0-green)](https://muon.build/)
+[![MesonLSP Version Badge](https://img.shields.io/badge/MesonLSP-latest-purple)](https://github.com/JCWasmx86/mesonlsp)
 ![license](https://img.shields.io/github/license/jobpaardekooper/zed-meson)
 ================================================================================
 
@@ -181,10 +181,10 @@ You need to do this each time after reopening the project.
 
 ## Language Server
 
-Both Muon's LSP mode and MesonLSP are supported by this extension as separate language servers (`muon` and `mesonlsp`). Both support automatic installation. The extension first checks if the server binary is available in your `PATH`. If not, it downloads the matching version for your architecture and operating system.
+Both MesonLSP and Muon's LSP mode are supported by this extension as separate language servers (`mesonlsp` and `muon`). Both support automatic installation. The extension first checks if the server binary is available in your `PATH`. If not, it downloads the matching version for your architecture and operating system.
 
 > [!NOTE]  
-> Muon has a [tracking issue regarding its LSP feature set](https://github.com/muon-build/muon/issues/159). Since MesonLSP has been archived and is no longer being developed, it is important that Muon's LSP functionality gets improved. Please contribute to Muon if you find it useful and would like a future-proof, actively developed and fully featured LSP for Meson (not just in Zed)!
+> MesonLSP is the recommended language server because it is actively developed and currently provides the most complete Meson language-server feature set. Muon's LSP mode remains available as an alternative, but it is still in early development. See Muon's [LSP feature tracking issue](https://github.com/muon-build/muon/issues/159) for an overview of the current state.
 
 You can choose which Meson language servers run through Zed's built-in language settings.
 
