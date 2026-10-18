@@ -1,6 +1,6 @@
 # Zed Meson Extension
 
-[![Muon Version Badge](https://img.shields.io/badge/Muon_LSP-v0.6.0-green)](https://muon.build/)
+[![Muon Version Badge](https://img.shields.io/badge/Muon_LSP-latest-green)](https://muon.build/)
 [![MesonLSP Version Badge](https://img.shields.io/badge/MesonLSP-latest-purple)](https://github.com/JCWasmx86/mesonlsp)
 ![license](https://img.shields.io/github/license/jobpaardekooper/zed-meson)
 ================================================================================
@@ -181,7 +181,7 @@ You need to do this each time after reopening the project.
 
 ## Language Server
 
-Both MesonLSP and Muon's LSP mode are supported by this extension as separate language servers (`mesonlsp` and `muon`). Both support automatic installation. The extension first checks if the server binary is available in your `PATH`. If not, it downloads the matching version for your architecture and operating system.
+Both MesonLSP and Muon's LSP mode are supported by this extension as separate language servers (`mesonlsp` and `muon`). Both support automatic installation and updates. The extension first checks if the server binary is available in your `PATH`. If not, it checks for the latest stable release and downloads the binary for your architecture and operating system, reusing an existing download of that version when available.
 
 > [!NOTE]  
 > MesonLSP is the recommended language server because it is actively developed and currently provides the most complete Meson language-server feature set. Muon's LSP mode remains available as an alternative, but it is still in early development. See Muon's [LSP feature tracking issue](https://github.com/muon-build/muon/issues/159) for an overview of the current state.
