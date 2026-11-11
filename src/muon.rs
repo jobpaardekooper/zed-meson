@@ -14,7 +14,8 @@ use crate::utils::file_exists;
 
 pub const LANGUAGE_SERVER_ID: &str = "muon";
 
-const MUON_RELEASES_URL: &str = "https://muon.build/releases/";
+const MUON_RELEASES_INDEX_URL: &str = "https://muon.build/releases";
+const MUON_RELEASES_DOWNLOAD_URL: &str = "https://dl.muon.build/";
 
 fn latest_release_version(body: &[u8]) -> Result<String> {
     let releases: zed::serde_json::Map<String, zed::serde_json::Value> =
@@ -57,7 +58,7 @@ pub fn install_or_find_muon(id: &LanguageServerId) -> Result<String, String> {
 
     let response = HttpRequest::builder()
         .method(HttpMethod::Get)
-        .url(MUON_RELEASES_URL)
+        .url(MUON_RELEASES_INDEX_URL)
         .header("Accept", "application/json")
         .redirect_policy(RedirectPolicy::FollowLimit(5))
         .build()?
@@ -95,7 +96,10 @@ pub fn install_or_find_muon(id: &LanguageServerId) -> Result<String, String> {
 
     if !file_exists(&PathBuf::from(&bin_path)) {
         zed::set_language_server_installation_status(id, &LSPStatus::Downloading);
-        let download_url = format!("{}{}/{}", MUON_RELEASES_URL, version, download_file_name);
+        let download_url = format!(
+            "{}{}/{}",
+            MUON_RELEASES_DOWNLOAD_URL, version, download_file_name
+        );
 
         if platform != zed::Os::Mac {
             fs::create_dir_all(&download_dir_name).map_err(|e| e.to_string())?;
